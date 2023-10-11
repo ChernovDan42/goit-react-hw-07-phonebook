@@ -1,52 +1,69 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { nanoid } from 'nanoid';
+import { fetchContacts, addContact, deleteContact } from './operations';
 
 const contactsInitialState = {
   contacts: [],
+  isLoading: false,
+  error: null,
 };
 
 const searchName = (state, obj) => {
   return state.contacts.find(
-    contact => contact.name.toLowerCase() === obj.name.toLowerCase()
+    contact => contact.name.toLowerCase() === obj.meta.arg.name.toLowerCase()
   );
 };
+
+const handlePending = state => ({
+  ...state,
+  isLoading: true,
+});
+const handleRejected = (state, action) => ({
+  ...state,
+  isLoading: false,
+  error: action.payload,
+});
 
 export const contactsSlice = createSlice({
   name: 'contacts',
   initialState: contactsInitialState,
-  reducers: {
-    addContact: {
-      reducer(state, action) {
-        if (searchName(state, action.payload)) {
-          return alert(`${action.payload.name} is already in contacts`);
-        }
-        // state.contacts.push(action.payload);
-        return { contacts: [...state.contacts, action.payload] };
-      },
-      prepare(obj) {
-        return {
-          payload: {
-            name: obj.name,
-            number: obj.number,
-            id: nanoid(),
-          },
-        };
-      },
-    },
-    deleteContact(state, action) {
-      // state.contacts = state.contacts.filter(
-      //   contact => contact.id !== action.payload
-      // );
-
+  reducers: {},
+  extraReducers: {
+    [fetchContacts.pending]: handlePending,
+    [fetchContacts.fulfilled](_, action) {
       return {
-        contacts: state.contacts.filter(
-          contact => contact.id !== action.payload
-        ),
+        contacts: action.payload,
+        isLoading: false,
+        error: null,
       };
     },
+    [fetchContacts.rejected]: handleRejected,
+    [addContact.pending](state, action) {
+      if (searchName(state, action)) {
+        alert(`${action.meta.arg.name} is already in contacts`);
+        throw new SyntaxError(`${action.meta.arg.name} is already in contacts`);
+      }
+      return { ...state, isLoading: true };
+    },
+    [addContact.fulfilled](state, action) {
+      return {
+        isLoading: false,
+        error: null,
+        contacts: [...state.contacts, action.payload],
+      };
+    },
+    [addContact.rejected]: handleRejected,
+    [deleteContact.pending]: handlePending,
+    [deleteContact.fulfilled](state, action) {
+      return {
+        contacts: state.contacts.filter(
+          contact => contact.id !== action.payload.id
+        ),
+        error: null,
+        isLoading: false,
+      };
+    },
+    [deleteContact.rejected]: handleRejected,
   },
 });
-
-export const { addContact, deleteContact } = contactsSlice.actions;
 
 export const contactsReducer = contactsSlice.reducer;

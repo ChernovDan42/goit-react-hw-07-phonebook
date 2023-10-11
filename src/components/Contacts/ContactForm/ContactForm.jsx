@@ -1,12 +1,14 @@
 import { Formik, Field, Form } from 'formik';
-import { addContact } from 'redux/contactsSlice';
-import { useDispatch } from 'react-redux';
+import { addContact } from 'redux/operations';
+import { useDispatch, useSelector } from 'react-redux';
 import clsx from 'clsx';
 import css from './ContactForm.module.css';
 import { useState } from 'react';
+import { getIsLoading } from 'redux/selectors';
 
 export const ContactForm = () => {
   const dispatch = useDispatch();
+  const IsLoading = useSelector(getIsLoading);
 
   // я використовую useState для анімаціі лейблу інпуту,подивіться className на лейблах.Можливо ви підкажете інший спосіб.
   const [name, setName] = useState('');
@@ -94,7 +96,7 @@ export const ContactForm = () => {
             </label>
           </div>
 
-          <button type="submit" className={css.submitBtn}>
+          <button type="submit" className={css.submitBtn} disabled={IsLoading}>
             Add contact
           </button>
         </Form>
