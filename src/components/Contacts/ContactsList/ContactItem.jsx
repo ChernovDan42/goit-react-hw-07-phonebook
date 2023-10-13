@@ -12,7 +12,6 @@ export const ContactItem = ({ contacts }) => {
   const handleDelete = id => {
     dispatch(deleteContact(id));
   };
-
   return (
     <>
       {contacts.map(({ name, number, id }) => {
