@@ -4,17 +4,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import clsx from 'clsx';
 import css from './ContactForm.module.css';
 import { useState } from 'react';
-import { getIsLoading } from 'redux/selectors';
+import { getContacts, getIsLoading } from 'redux/selectors';
+import { searchName } from '../helpers/js/searchName';
 
 export const ContactForm = () => {
   const dispatch = useDispatch();
   const IsLoading = useSelector(getIsLoading);
+  const contacts = useSelector(getContacts);
 
-  // я використовую useState для анімаціі лейблу інпуту,подивіться className на лейблах.Можливо ви підкажете інший спосіб.
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
-
-  // Formiк вирішив просто для практики використати
 
   const handleChange = e => {
     switch (e.target.name) {
@@ -45,6 +44,10 @@ export const ContactForm = () => {
           number: '',
         }}
         onSubmit={() => {
+          if (searchName(contacts, name)) {
+            resetForm();
+            return alert(`${name} is already in contacts`);
+          }
           dispatch(addContact({ name, number }));
           resetForm();
         }}

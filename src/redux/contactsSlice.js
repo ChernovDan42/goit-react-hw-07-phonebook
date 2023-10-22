@@ -7,12 +7,6 @@ const contactsInitialState = {
   error: null,
 };
 
-const searchName = (state, obj) => {
-  return state.contacts.find(
-    contact => contact.name.toLowerCase() === obj.meta.arg.name.toLowerCase()
-  );
-};
-
 const handlePending = state => ({
   ...state,
   isLoading: true,
@@ -38,10 +32,6 @@ const contactsSlice = createSlice({
     },
     [fetchContacts.rejected]: handleRejected,
     [addContact.pending](state, action) {
-      if (searchName(state, action)) {
-        alert(`${action.meta.arg.name} is already in contacts`);
-        throw new SyntaxError(`${action.meta.arg.name} is already in contacts`);
-      }
       return { ...state, isLoading: true };
     },
     [addContact.fulfilled](state, action) {
