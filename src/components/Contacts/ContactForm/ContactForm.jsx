@@ -6,6 +6,7 @@ import css from './ContactForm.module.css';
 import { useState } from 'react';
 import { getContacts, getIsLoading } from 'redux/selectors';
 import { searchName } from '../helpers/js/searchName';
+import { toast } from 'react-toastify';
 
 export const ContactForm = () => {
   const dispatch = useDispatch();
@@ -46,7 +47,7 @@ export const ContactForm = () => {
         onSubmit={() => {
           if (searchName(contacts, name)) {
             resetForm();
-            return alert(`${name} is already in contacts`);
+            return toast.error(`${name} is already in contacts`);
           }
           dispatch(addContact({ name, number }));
           resetForm();
